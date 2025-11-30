@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { loginUser, registerUser } from '@/lib/api';
 
 interface User {
   id: string;
@@ -10,7 +11,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
 }
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check for existing token on mount
     const token = localStorage.getItem('tickr_token');
     const userData = localStorage.getItem('tickr_user');
-    
+
     if (token && userData) {
       try {
         setUser(JSON.parse(userData));
@@ -43,49 +44,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // For demo purposes, accept any email/password
-    if (email && password.length >= 6) {
-      const userData = {
-        id: '1',
-        email,
-        name: email.split('@')[0]
-      };
-      
-      const token = 'dummy_jwt_token_' + Date.now();
-      
-      localStorage.setItem('tickr_token', token);
-      localStorage.setItem('tickr_user', JSON.stringify(userData));
-      setUser(userData);
-      return true;
+    try {
+      const response = await loginUser(email, password);
+      if (response.ok) {
+        const data = await response.json();
+        // Ensure the response has the expected structure
+        if (data.data.token && data.data.user) {
+          const { token, user } = data;
+          localStorage.setItem('tickr_token', token);
+          localStorage.setItem('tickr_user', JSON.stringify(user));
+          setUser(user);
+          return true;
+        } else {
+          console.error('Login API response missing required fields:', data);
+          return false;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Login failed:', error);
+      return false;
     }
-    
-    return false;
   };
 
-  const register = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // For demo purposes, accept any valid email/password
-    if (email && password.length >= 6) {
-      const userData = {
-        id: '1',
-        email,
-        name: email.split('@')[0]
-      };
-      
-      const token = 'dummy_jwt_token_' + Date.now();
-      
-      localStorage.setItem('tickr_token', token);
-      localStorage.setItem('tickr_user', JSON.stringify(userData));
-      setUser(userData);
-      return true;
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await registerUser(name, email, password);
+      if (response.ok) {
+        const data = await response.json();
+        // Ensure the response has the expected structure
+        if (data.data.token && data.data.user) {
+          const { token, user } = data;
+          localStorage.setItem('tickr_token', token);
+          localStorage.setItem('tickr_user', JSON.stringify(user));
+          setUser(user);
+          return true;
+        } else {
+          console.error('Register API response missing required fields:', data);
+          return false;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return false;
     }
-    
-    return false;
   };
 
   const logout = () => {
@@ -96,7 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || !!(localStorage.getItem('tickr_token') && localStorage.getItem('tickr_user')),
     login,
     register,
     logout,
