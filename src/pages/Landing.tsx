@@ -11,7 +11,7 @@ const Landing: React.FC = () => {
       {/* Navigation */}
       <nav className="p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-3"
@@ -19,8 +19,8 @@ const Landing: React.FC = () => {
             <img src={logo} alt="Tickr" className="h-8 w-8" />
             <span className="text-2xl font-bold text-foreground">Tickr</span>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-4"
@@ -42,7 +42,7 @@ const Landing: React.FC = () => {
       {/* Hero Section */}
       <section className="px-6 py-20">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -53,8 +53,8 @@ const Landing: React.FC = () => {
               Like Never Before
             </span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -62,8 +62,8 @@ const Landing: React.FC = () => {
           >
             Real-time insights. Custom price alerts. Built for serious investors.
           </motion.p>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -86,7 +86,7 @@ const Landing: React.FC = () => {
       {/* Features Section */}
       <section className="px-6 py-20">
         <div className="max-w-6xl mx-auto">
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -94,7 +94,7 @@ const Landing: React.FC = () => {
           >
             Everything you need to stay ahead
           </motion.h2>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
@@ -140,7 +140,7 @@ const Landing: React.FC = () => {
 
       {/* CTA Section */}
       <section className="px-6 py-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
@@ -168,7 +168,7 @@ const Landing: React.FC = () => {
             <span className="text-xl font-bold text-foreground">Tickr</span>
           </div>
           <p className="text-muted-foreground">
-            © 2024 Tickr. All rights reserved.
+            © 2025 Tickr. All rights reserved.
           </p>
         </div>
       </footer>

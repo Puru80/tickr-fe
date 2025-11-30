@@ -10,6 +10,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 const Register: React.FC = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,6 +18,7 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ 
+    name?: string;
     email?: string; 
     password?: string; 
     confirmPassword?: string;
@@ -28,10 +30,17 @@ const Register: React.FC = () => {
 
   const validateForm = () => {
     const newErrors: { 
+      name?: string;
       email?: string; 
       password?: string; 
       confirmPassword?: string;
     } = {};
+
+    if (!name) {
+      newErrors.name = 'Name is required';
+    } else if (name.length < 3) {
+      newErrors.name = 'Name must be at least 3 characters';
+    }
     
     if (!email) {
       newErrors.email = 'Email is required';
@@ -63,7 +72,7 @@ const Register: React.FC = () => {
     setLoading(true);
     
     try {
-      const success = await register(email, password);
+      const success = await register(name, email, password);
       
       if (success) {
         toast({
@@ -121,6 +130,21 @@ const Register: React.FC = () => {
           onSubmit={handleSubmit}
           className="space-y-6"
         >
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              className={errors.name ? 'border-destructive' : ''}
+            />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name}</p>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input

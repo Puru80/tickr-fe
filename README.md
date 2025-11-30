@@ -71,3 +71,28 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Nodemon Hot Reload Setup
+
+This project includes nodemon for enhanced development experience with hot reload capabilities.
+
+### Scripts
+
+- `npm run dev:hot` - Starts the development server with nodemon for file watching and hot reload
+- `npm run nodemon` - Alternative nodemon script that watches files and restarts the dev server
+
+### Configuration
+
+The nodemon configuration is in `nodemon.json` and is configured to watch:
+- `src` directory (your main source files)
+- `index.html`
+- `vite.config.ts`
+- `tailwind.config.ts`
+
+It watches changes to `.ts`, `.tsx`, `.html`, `.css`, `.scss`, `.json`, `.js`, and `.md` files.
+
+### Usage
+
+1. Run `npm run dev:hot` to start development with hot reload
+2. Make changes to your source files
+3. Nodemon will automatically restart the development server when changes are detected

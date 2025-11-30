@@ -1,0 +1,19 @@
+{
+  "watch": ["src", "index.html", "vite.config.ts", "tailwind.config.ts"],
+  "ext": "ts,tsx,html,css,scss,json,js,md",
+  "ignore": [
+    "dist",
+    "node_modules",
+    "build",
+    ".git",
+    ".next",
+    "coverage",
+    "*.test.ts",
+    "*.spec.ts"
+  ],
+  "delay": "2500",
+  "events": {
+    "restart": "clear || cls"
+  },
+  "verbose": false
+}
