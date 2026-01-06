@@ -15,46 +15,46 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  
+
   const { login } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
-    
+
     try {
       const success = await login(email, password);
-      
+
       if (success) {
         toast({
           title: "Welcome back!",
           description: "You've been successfully logged in.",
         });
-        navigate('/home');
+        navigate('/dashboard');
       } else {
         toast({
           title: "Login failed",
@@ -75,7 +75,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -98,7 +98,7 @@ const Login: React.FC = () => {
         </div>
 
         {/* Login Form */}
-        <motion.form 
+        <motion.form
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -152,9 +152,9 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             variant="gradient"
             disabled={loading}
           >
@@ -163,7 +163,7 @@ const Login: React.FC = () => {
         </motion.form>
 
         {/* Register Link */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
