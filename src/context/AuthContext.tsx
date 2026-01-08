@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { loginUser, registerUser } from '@/lib/api';
+import React, {createContext, ReactNode, useContext, useEffect, useState} from 'react';
+import {loginUser, registerUser} from '@/lib/api';
 
 interface User {
   id: string;
@@ -45,12 +45,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await loginUser(email, password);
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure the response has the expected structure
+        const data = await loginUser(email, password);
         if (data.data.token && data.data.user) {
-          const { token, user } = data;
+          const token = data.data.token;
+          const user = data.data.user;
           localStorage.setItem('tickr_token', token);
           localStorage.setItem('tickr_user', JSON.stringify(user));
           setUser(user);
@@ -59,8 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error('Login API response missing required fields:', data);
           return false;
         }
-      }
-      return false;
     } catch (error) {
       console.error('Login failed:', error);
       return false;
@@ -69,12 +65,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      const response = await registerUser(name, email, password);
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure the response has the expected structure
+        const data = await registerUser(name, email, password)
+
         if (data.data.token && data.data.user) {
-          const { token, user } = data;
+          const token = data.data.token;
+          const user = data.data.user;
+          console.log(token, user);
           localStorage.setItem('tickr_token', token);
           localStorage.setItem('tickr_user', JSON.stringify(user));
           setUser(user);
@@ -83,8 +79,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error('Register API response missing required fields:', data);
           return false;
         }
-      }
-      return false;
     } catch (error) {
       console.error('Registration failed:', error);
       return false;

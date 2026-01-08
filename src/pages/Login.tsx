@@ -155,7 +155,6 @@ const Login: React.FC = () => {
           <Button
             type="submit"
             className="w-full"
-            variant="gradient"
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign In'}

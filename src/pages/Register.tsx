@@ -211,7 +211,6 @@ const Register: React.FC = () => {
           <Button
             type="submit"
             className="w-full"
-            variant="gradient"
             disabled={loading}
           >
             {loading ? 'Creating account...' : 'Create Account'}
