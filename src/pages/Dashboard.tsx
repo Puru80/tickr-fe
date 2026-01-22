@@ -7,7 +7,15 @@ import { WatchlistSelector } from '@/components/watchlist/WatchlistSelector';
 import { WatchlistTable } from '@/components/watchlist/WatchlistTable';
 import { AddInstrumentModal } from '@/components/watchlist/AddInstrumentModal';
 import { ComingSoonSection } from '@/components/common/ComingSoonSection';
-import { getWatchlists, createWatchlist, getWatchlistItems, addInstrumentToWatchlist } from '@/lib/api';
+import {
+  getWatchlists,
+  createWatchlist,
+  getWatchlistItems,
+  addInstrumentToWatchlist,
+  renameWatchlist,
+  deleteWatchlist,
+  removeInstrumentFromWatchlist
+} from '@/lib/api';
 import { Watchlist, Instrument, AddInstrumentFormData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,6 +67,24 @@ export default function Dashboard() {
     }
   });
 
+  const renameWatchlistMutation = useMutation({
+    mutationFn: renameWatchlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['watchlists']});
+      toast({
+        title: 'Watchlist Renamed',
+        description: `Watchlist has been renamed successfully.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error Renaming Watchlist',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  });
+
   const addInstrumentMutation = useMutation({
     mutationFn: ({ watchlistId, instrumentConfig }: { watchlistId: string, instrumentConfig: AddInstrumentFormData }) =>
       addInstrumentToWatchlist(watchlistId, instrumentConfig),
@@ -85,25 +111,65 @@ export default function Dashboard() {
   // The following handlers are not yet implemented with API calls.
   // They currently only modify local state and will not persist.
   const handleRenameWatchlist = (id: string, newName: string) => {
-    // TODO: Implement API call for renaming watchlist
-    console.log('Rename watchlist (local):', id, newName);
-    toast({
-      title: 'Rename (local)',
-      description: `Renamed to "${newName}".`,
-    });
+    renameWatchlistMutation.mutate({ id, name: newName });
   };
+
+  const deleteWatchlistMutation = useMutation({
+    mutationFn: deleteWatchlist,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+      toast({
+        title: 'Watchlist Deleted',
+        description: 'The watchlist has been successfully deleted.',
+      });
+      setSelectedWatchlist(null); // Or select the first one if available
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error Deleting Watchlist',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
   const handleDeleteWatchlist = (id: string) => {
-    // TODO: Implement API call for deleting watchlist
-    console.log('Delete watchlist (local):', id);
+    deleteWatchlistMutation.mutate(id);
+  };
+
+  const removeInstrumentMutation = useMutation({
+    mutationFn: ({ watchlistId, instrumentId }: { watchlistId: string; instrumentId: string }) =>
+      removeInstrumentFromWatchlist(watchlistId, instrumentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlistItems', selectedWatchlist?.id] });
+      toast({
+        title: 'Instrument Removed',
+        description: 'The instrument has been successfully removed from your watchlist.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error Removing Instrument',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['watchlistItems', selectedWatchlist?.id],
+    });
     toast({
-      title: 'Delete (local)',
-      description: `Watchlist with id ${id} deleted locally.`,
-      variant: 'destructive',
+      title: 'Refreshing Watchlist',
+      description: 'Fetching the latest instrument prices...',
     });
   };
 
-  const handleAddInstrument = (data: AddInstrumentFormData & { currentPrice: number }) => {
+
+  const handleAddInstrument = (
+    data: AddInstrumentFormData & { currentPrice: number }
+  ) => {
     if (!selectedWatchlist) {
       toast({
         title: 'No Watchlist Selected',
@@ -132,13 +198,8 @@ export default function Dashboard() {
   };
 
   const handleRemoveInstrument = (instrumentId: string) => {
-    // TODO: Implement API call for removing instrument
-    console.log('Remove instrument (local):', instrumentId);
-    toast({
-      title: 'Instrument removed (local)',
-      description: `Instrument with id ${instrumentId} removed locally.`,
-      variant: 'destructive',
-    });
+    if (!selectedWatchlist) return;
+    removeInstrumentMutation.mutate({ watchlistId: selectedWatchlist.id, instrumentId });
   };
 
   if (isErrorWatchlists) {
@@ -187,6 +248,7 @@ export default function Dashboard() {
                     onAddInstrument={() => setIsAddModalOpen(true)}
                     onEditInstrument={handleEditInstrument}
                     onRemoveInstrument={handleRemoveInstrument}
+                    onRefresh={handleRefresh}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-center">

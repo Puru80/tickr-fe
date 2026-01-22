@@ -1,5 +1,13 @@
 import { motion } from 'framer-motion';
-import { Plus, TrendingUp, TrendingDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  RefreshCw,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -18,7 +26,49 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Instrument } from '@/types';
 import { cn } from '@/lib/utils';
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect, useRef } from 'react';
+
+const CountdownCircle = ({ seconds }: { seconds: number }) => {
+  const radius = 15; // Increased radius
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, seconds / 30);
+  const strokeDashoffset = circumference * (1 - progress);
+
+  return (
+    <div className="relative w-9 h-9 flex items-center justify-center">
+      <svg
+        className="absolute transform -rotate-90"
+        width="32" // Increased SVG size
+        height="32" // Increased SVG size
+        viewBox="0 0 32 32" // Adjusted viewBox
+      >
+        <circle
+          className="text-border"
+          strokeWidth="3" // Increased stroke width
+          stroke="currentColor"
+          fill="transparent"
+          r={radius}
+          cx="16" // Adjusted cx
+          cy="16" // Adjusted cy
+        />
+        <circle
+          className="text-primary transition-all duration-1000 linear"
+          strokeWidth="3" // Increased stroke width
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          stroke="currentColor"
+          fill="transparent"
+          r={radius}
+          cx="16" // Adjusted cx
+          cy="16" // Adjusted cy
+        />
+      </svg>
+      <span className="text-sm font-mono text-foreground">{seconds}</span>
+    </div>
+  );
+};
 
 interface WatchlistTableProps {
   instruments: Instrument[];
@@ -26,6 +76,7 @@ interface WatchlistTableProps {
   onAddInstrument: () => void;
   onEditInstrument: (instrument: Instrument) => void;
   onRemoveInstrument: (instrumentId: string) => void;
+  onRefresh: () => void;
 }
 
 export function WatchlistTable({
@@ -34,16 +85,53 @@ export function WatchlistTable({
   onAddInstrument,
   onEditInstrument,
   onRemoveInstrument,
+  onRefresh,
 }: WatchlistTableProps) {
+  const [isRefreshDisabled, setIsRefreshDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const timerRef = useRef<number | null>(null);
+  const intervalRef = useRef<number | null>(null);
+
+  const handleRefresh = () => {
+    if (isRefreshDisabled) return;
+
+    onRefresh();
+    setIsRefreshDisabled(true);
+    setCountdown(30);
+
+    intervalRef.current = window.setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          if (intervalRef.current) {
+            window.clearInterval(intervalRef.current);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    timerRef.current = window.setTimeout(() => {
+      setIsRefreshDisabled(false);
+    }, 30000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-            <Skeleton className="h-8 w-24" />
-            <Skeleton className="h-8 w-32" />
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-32" />
         </div>
         <div className="rounded-xl border border-border overflow-hidden bg-card/50">
-            <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-40 w-full" />
         </div>
       </div>
     );
@@ -61,7 +149,10 @@ export function WatchlistTable({
         <p className="text-sm text-muted-foreground max-w-sm mb-4">
           Add your first instrument to start tracking its performance.
         </p>
-        <Button onClick={onAddInstrument} className="bg-primary hover:bg-primary/90">
+        <Button
+          onClick={onAddInstrument}
+          className="bg-primary hover:bg-primary/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Instrument
         </Button>
@@ -73,7 +164,8 @@ export function WatchlistTable({
     const referencePrice = instrument.referencePrice;
     const currentPrice = instrument.lastPrice;
     const absoluteChange = currentPrice - referencePrice;
-    const percentChange = ((currentPrice - referencePrice) / referencePrice) * 100;
+    const percentChange =
+      ((currentPrice - referencePrice) / referencePrice) * 100;
     const isPositive = absoluteChange >= 0;
     return { absoluteChange, percentChange, isPositive };
   };
@@ -83,34 +175,64 @@ export function WatchlistTable({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {instruments.length} instrument{instruments.length !== 1 ? 's' : ''}
+            {instruments.length} instrument
+            {instruments.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <Button
-          size="sm"
-          onClick={onAddInstrument}
-          className="bg-primary hover:bg-primary/90"
-        >
-          <Plus className="w-4 h-4 mr-1" />
-          Add Instrument
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isRefreshDisabled}
+            className="w-[100px] justify-center"
+          >
+            {isRefreshDisabled ? (
+              <CountdownCircle seconds={countdown} />
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </>
+            )}
+          </Button>
+          <Button
+            size="sm"
+            onClick={onAddInstrument}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Add Instrument
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border overflow-hidden bg-card/50">
         <Table>
           <TableHeader>
             <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="text-muted-foreground font-medium">Instrument</TableHead>
-              <TableHead className="text-muted-foreground font-medium">Reference Price</TableHead>
-              <TableHead className="text-muted-foreground font-medium text-right">Current Price</TableHead>
-              <TableHead className="text-muted-foreground font-medium text-right">Change</TableHead>
-              <TableHead className="text-muted-foreground font-medium text-right">% Change</TableHead>
+              <TableHead className="text-muted-foreground font-medium">
+                Instrument
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium">
+                Reference Price
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium text-right">
+                Current Price
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium text-right">
+                Change
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium text-right">
+                % Change
+              </TableHead>
               <TableHead className="text-muted-foreground font-medium w-12"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {instruments.map((instrument, index) => {
-              const { absoluteChange, percentChange, isPositive } = calculateChange(instrument);
+              const { absoluteChange, percentChange, isPositive } =
+                calculateChange(instrument);
 
               return (
                 <motion.tr
@@ -158,7 +280,9 @@ export function WatchlistTable({
                             : 'border-border text-muted-foreground'
                         )}
                       >
-                        {instrument.referenceType === 'CUSTOM' ? 'CUSTOM' : 'MARKET'}
+                        {instrument.referenceType === 'CUSTOM'
+                          ? 'CUSTOM'
+                          : 'MARKET'}
                       </Badge>
                     </div>
                   </TableCell>
@@ -170,10 +294,12 @@ export function WatchlistTable({
                     })}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className={cn(
-                      'flex items-center justify-end gap-1 font-mono',
-                      isPositive ? 'text-gain' : 'text-loss'
-                    )}>
+                    <div
+                      className={cn(
+                        'flex items-center justify-end gap-1 font-mono',
+                        isPositive ? 'text-gain' : 'text-loss'
+                      )}
+                    >
                       {isPositive ? (
                         <TrendingUp className="w-3 h-3" />
                       ) : (

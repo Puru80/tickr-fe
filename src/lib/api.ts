@@ -68,6 +68,20 @@ export const createWatchlist = async (name: string) => {
   return data.data;
 };
 
+export const renameWatchlist = async ({ id, name }: { id: string, name: string }) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/watchlists/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  })
+  const data = await handleResponse(response);
+  return data.data;
+}
+
 export const getWatchlistItems = async (id: string) => {
   const token = localStorage.getItem('tickr_token');
   const response = await fetch(`${API_URL}/watchlists/${id}/instruments`, {
@@ -93,6 +107,31 @@ export const searchInstruments = async (query: string) => {
   const data = await handleResponse(response);
   return data.data;
 };
+
+export const deleteWatchlist = async (id: string) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/watchlists/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+}
+
+
+export const removeInstrumentFromWatchlist = async (watchlistId: string, instrumentId: string) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/watchlists/${watchlistId}/instruments/${instrumentId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return handleResponse(response);
+}
 
 export const addInstrumentToWatchlist = async (watchlistId: string, instrument: AddInstrumentFormData) => {
   const token = localStorage.getItem('tickr_token');
