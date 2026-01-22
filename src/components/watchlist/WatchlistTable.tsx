@@ -16,39 +16,40 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Instrument, Watchlist } from '@/types';
+import { Instrument } from '@/types';
 import { cn } from '@/lib/utils';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface WatchlistTableProps {
-  watchlist: Watchlist | null;
+  instruments: Instrument[];
+  isLoading: boolean;
   onAddInstrument: () => void;
   onEditInstrument: (instrument: Instrument) => void;
   onRemoveInstrument: (instrumentId: string) => void;
 }
 
 export function WatchlistTable({
-  watchlist,
+  instruments,
+  isLoading,
   onAddInstrument,
   onEditInstrument,
   onRemoveInstrument,
 }: WatchlistTableProps) {
-  if (!watchlist) {
+  if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-          <TrendingUp className="w-8 h-8 text-muted-foreground" />
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-8 w-32" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">
-          No watchlist selected
-        </h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Select an existing watchlist or create a new one to start tracking instruments.
-        </p>
+        <div className="rounded-xl border border-border overflow-hidden bg-card/50">
+            <Skeleton className="h-40 w-full" />
+        </div>
       </div>
     );
   }
 
-  if (watchlist.instruments.length === 0) {
+  if (instruments.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -70,7 +71,7 @@ export function WatchlistTable({
 
   const calculateChange = (instrument: Instrument) => {
     const referencePrice = instrument.referencePrice;
-    const currentPrice = instrument.currentPrice;
+    const currentPrice = instrument.lastPrice;
     const absoluteChange = currentPrice - referencePrice;
     const percentChange = ((currentPrice - referencePrice) / referencePrice) * 100;
     const isPositive = absoluteChange >= 0;
@@ -82,7 +83,7 @@ export function WatchlistTable({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {watchlist.instruments.length} instrument{watchlist.instruments.length !== 1 ? 's' : ''}
+            {instruments.length} instrument{instruments.length !== 1 ? 's' : ''}
           </span>
         </div>
         <Button
@@ -108,9 +109,9 @@ export function WatchlistTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {watchlist.instruments.map((instrument, index) => {
+            {instruments.map((instrument, index) => {
               const { absoluteChange, percentChange, isPositive } = calculateChange(instrument);
-              
+
               return (
                 <motion.tr
                   key={instrument.id}
@@ -121,21 +122,16 @@ export function WatchlistTable({
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-muted">
-                        <span className="text-sm font-semibold text-foreground">
-                          {instrument.ticker.slice(0, 2)}
-                        </span>
-                      </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground">
-                            {instrument.ticker}
+                            {instrument.tradingSymbol}
                           </span>
                           <Badge
                             variant="secondary"
                             className="text-[10px] px-1.5 py-0 h-5 bg-muted text-muted-foreground"
                           >
-                            {instrument.market}
+                            {instrument.exchange}
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground truncate max-w-[200px]">
@@ -147,7 +143,7 @@ export function WatchlistTable({
                   <TableCell>
                     <div className="flex flex-col">
                       <span className="font-mono text-foreground">
-                        {instrument.market === 'CRYPTO' ? '$' : '₹'}
+                        {instrument.exchange === 'CRYPTO' ? '$' : '₹'}
                         {instrument.referencePrice.toLocaleString('en-IN', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -157,18 +153,18 @@ export function WatchlistTable({
                         variant="outline"
                         className={cn(
                           'w-fit text-[10px] mt-1',
-                          instrument.referenceType === 'custom'
+                          instrument.referenceType === 'CUSTOM'
                             ? 'border-warning/50 text-warning bg-warning/10'
                             : 'border-border text-muted-foreground'
                         )}
                       >
-                        {instrument.referenceType === 'custom' ? 'Custom' : 'Market'}
+                        {instrument.referenceType === 'CUSTOM' ? 'CUSTOM' : 'MARKET'}
                       </Badge>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-mono text-foreground font-medium">
-                    {instrument.market === 'CRYPTO' ? '$' : '₹'}
-                    {instrument.currentPrice.toLocaleString('en-IN', {
+                    {instrument.exchange === 'CRYPTO' ? '$' : '₹'}
+                    {instrument.lastPrice.toLocaleString('en-IN', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
@@ -185,7 +181,7 @@ export function WatchlistTable({
                       )}
                       <span>
                         {isPositive ? '+' : ''}
-                        {instrument.market === 'CRYPTO' ? '$' : '₹'}
+                        {instrument.exchange === 'CRYPTO' ? '$' : '₹'}
                         {Math.abs(absoluteChange).toLocaleString('en-IN', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,

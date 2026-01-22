@@ -90,7 +90,7 @@ export function WatchlistSelector({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="min-w-[200px] justify-between bg-muted/50 border-border hover:bg-muted"
+            className="min-w-[200px] justify-between bg-muted/50 border-border"
           >
             <span className="truncate">
               {selectedWatchlist?.name || 'Select Watchlist'}
@@ -109,9 +109,9 @@ export function WatchlistSelector({
               )}
             >
               <span className="truncate">{watchlist.name}</span>
-              <span className="ml-auto text-xs text-muted-foreground">
-                {watchlist.instruments.length}
-              </span>
+              {/*<span className="ml-auto text-xs text-muted-foreground">*/}
+              {/*  {watchlist.instruments.length}*/}
+              {/*</span>*/}
             </DropdownMenuItem>
           ))}
           {watchlists.length === 0 && (

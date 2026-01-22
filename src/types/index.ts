@@ -1,17 +1,17 @@
 // Core type definitions for Tickr
 
-export type Market = 'NSE' | 'BSE' | 'CRYPTO';
+export type Exchange = 'NSE' | 'BSE' | 'CRYPTO';
 
-export type ReferenceType = 'market' | 'custom';
+export type ReferenceType = 'MARKET' | 'CUSTOM';
 
 export interface Instrument {
   id: string;
-  ticker: string;
+  tradingSymbol: string;
   name: string;
-  market: Market;
+  exchange: Exchange;
   referenceType: ReferenceType;
   referencePrice: number;
-  currentPrice: number;
+  lastPrice: number;
   addedAt: Date;
 }
 
@@ -50,11 +50,11 @@ export interface SortConfig {
 
 // Form types
 export interface AddInstrumentFormData {
-  ticker: string;
+  tradingSymbol: string;
   name: string;
-  market: Market;
+  exchange: Exchange;
   referenceType: ReferenceType;
-  customPrice?: number;
+  referencePrice?: number;
 }
 
 export interface CreateWatchlistFormData {

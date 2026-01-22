@@ -1,3 +1,5 @@
+import {AddInstrumentFormData} from "@/types";
+
 const API_URL = 'http://localhost:8080/api/v1';
 
 const handleResponse = async (response: Response) => {
@@ -60,8 +62,46 @@ export const createWatchlist = async (name: string) => {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({name}),
+    body: JSON.stringify({ name }),
   });
   const data = await handleResponse(response);
   return data.data;
 };
+
+export const getWatchlistItems = async (id: string) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/watchlists/${id}/instruments`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+export const searchInstruments = async (query: string) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/instruments/search?query=${query}&page=0&size=10`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await handleResponse(response);
+  return data.data;
+};
+
+export const addInstrumentToWatchlist = async (watchlistId: string, instrument: AddInstrumentFormData) => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/watchlists/${watchlistId}/instruments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(instrument)
+  })
+}

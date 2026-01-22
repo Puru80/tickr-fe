@@ -7,10 +7,11 @@ import { WatchlistSelector } from '@/components/watchlist/WatchlistSelector';
 import { WatchlistTable } from '@/components/watchlist/WatchlistTable';
 import { AddInstrumentModal } from '@/components/watchlist/AddInstrumentModal';
 import { ComingSoonSection } from '@/components/common/ComingSoonSection';
-import { getWatchlists, createWatchlist } from '@/lib/api';
+import { getWatchlists, createWatchlist, getWatchlistItems, addInstrumentToWatchlist } from '@/lib/api';
 import { Watchlist, Instrument, AddInstrumentFormData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from "@/components/ui/skeleton";
+import {TrendingUp} from "lucide-react";
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
@@ -24,6 +25,16 @@ export default function Dashboard() {
     queryFn: getWatchlists,
   });
 
+  const {
+    data: watchlistItems = [],
+    isLoading: isLoadingWatchlistItems,
+    isError: isErrorWatchlistItems,
+  } = useQuery<Instrument[]>({
+    queryKey: ['watchlistItems', selectedWatchlist?.id],
+    queryFn: () => getWatchlistItems(selectedWatchlist!.id),
+    enabled: !!selectedWatchlist,
+  });
+
   useEffect(() => {
     if (!selectedWatchlist && watchlists.length > 0) {
       setSelectedWatchlist(watchlists[0]);
@@ -32,12 +43,11 @@ export default function Dashboard() {
 
   const createWatchlistMutation = useMutation({
     mutationFn: createWatchlist,
-    onSuccess: (newWatchlist) => {
-      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
-      setSelectedWatchlist(newWatchlist);
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['watchlists']});
       toast({
         title: 'Watchlist created',
-        description: `"${newWatchlist.name}" has been created successfully.`,
+        description: `Watchlist has been created successfully.`,
       });
     },
     onError: (error) => {
@@ -47,6 +57,25 @@ export default function Dashboard() {
         variant: 'destructive',
       });
     }
+  });
+
+  const addInstrumentMutation = useMutation({
+    mutationFn: ({ watchlistId, instrumentConfig }: { watchlistId: string, instrumentConfig: AddInstrumentFormData }) =>
+      addInstrumentToWatchlist(watchlistId, instrumentConfig),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlistItems', selectedWatchlist?.id] });
+      toast({
+        title: 'Instrument Added',
+        description: 'The instrument has been successfully added to your watchlist.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error Adding Instrument',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
   });
 
   const handleCreateWatchlist = (name: string) => {
@@ -75,18 +104,30 @@ export default function Dashboard() {
   };
 
   const handleAddInstrument = (data: AddInstrumentFormData & { currentPrice: number }) => {
-    // TODO: Implement API call for adding instrument
-    console.log('Add instrument (local):', data);
-    toast({
-      title: 'Instrument added (local)',
-      description: `${data.ticker} has been added locally.`,
-    });
+    if (!selectedWatchlist) {
+      toast({
+        title: 'No Watchlist Selected',
+        description: 'Please select a watchlist before adding an instrument.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const instrumentConfig: AddInstrumentFormData = {
+      tradingSymbol: data.tradingSymbol,
+      exchange: data.exchange,
+      name: data.name,
+      referenceType: data.referenceType,
+      referencePrice: data.referenceType === 'CUSTOM' ? data.referencePrice! : data.currentPrice,
+    };
+
+    addInstrumentMutation.mutate({ watchlistId: selectedWatchlist.id, instrumentConfig });
   };
 
   const handleEditInstrument = (instrument: Instrument) => {
     toast({
       title: 'Edit coming soon',
-      description: `Editing ${instrument.ticker} will be available soon.`,
+      description: `Editing ${instrument.tradingSymbol} will be available soon.`,
     });
   };
 
@@ -139,12 +180,27 @@ export default function Dashboard() {
               />
 
               <div className="mt-6">
-                <WatchlistTable
-                  watchlist={selectedWatchlist}
-                  onAddInstrument={() => setIsAddModalOpen(true)}
-                  onEditInstrument={handleEditInstrument}
-                  onRemoveInstrument={handleRemoveInstrument}
-                />
+                {selectedWatchlist ? (
+                  <WatchlistTable
+                    instruments={watchlistItems}
+                    isLoading={isLoadingWatchlistItems}
+                    onAddInstrument={() => setIsAddModalOpen(true)}
+                    onEditInstrument={handleEditInstrument}
+                    onRemoveInstrument={handleRemoveInstrument}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <TrendingUp className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      No watchlist selected
+                    </h3>
+                    <p className="text-sm text-muted-foreground max-w-sm">
+                      Select an existing watchlist or create a new one to start tracking instruments.
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -161,4 +217,3 @@ export default function Dashboard() {
     </DashboardLayout>
   );
 }
-
