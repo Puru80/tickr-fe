@@ -14,7 +14,7 @@ import {
   addInstrumentToWatchlist,
   renameWatchlist,
   deleteWatchlist,
-  removeInstrumentFromWatchlist
+  removeInstrumentFromWatchlist, deleteInstrumentFromWatchlist
 } from '@/lib/api';
 import { Watchlist, Instrument, AddInstrumentFormData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -138,8 +138,8 @@ export default function Dashboard() {
   };
 
   const removeInstrumentMutation = useMutation({
-    mutationFn: ({ watchlistId, instrumentId }: { watchlistId: string; instrumentId: string }) =>
-      removeInstrumentFromWatchlist(watchlistId, instrumentId),
+    mutationFn: ({ instrumentId }: { instrumentId: string }) =>
+      deleteInstrumentFromWatchlist(instrumentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['watchlistItems', selectedWatchlist?.id] });
       toast({
@@ -199,7 +199,7 @@ export default function Dashboard() {
 
   const handleRemoveInstrument = (instrumentId: string) => {
     if (!selectedWatchlist) return;
-    removeInstrumentMutation.mutate({ watchlistId: selectedWatchlist.id, instrumentId });
+    removeInstrumentMutation.mutate({ instrumentId });
   };
 
   if (isErrorWatchlists) {
