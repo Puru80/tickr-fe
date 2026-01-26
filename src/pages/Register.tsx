@@ -17,22 +17,22 @@ const Register: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ 
+  const [errors, setErrors] = useState<{
     name?: string;
-    email?: string; 
-    password?: string; 
+    email?: string;
+    password?: string;
     confirmPassword?: string;
   }>({});
-  
+
   const { register } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const validateForm = () => {
-    const newErrors: { 
+    const newErrors: {
       name?: string;
-      email?: string; 
-      password?: string; 
+      email?: string;
+      password?: string;
       confirmPassword?: string;
     } = {};
 
@@ -41,45 +41,45 @@ const Register: React.FC = () => {
     } else if (name.length < 3) {
       newErrors.name = 'Name must be at least 3 characters';
     }
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (!confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
-    
+
     try {
       const success = await register(name, email, password);
-      
+
       if (success) {
         toast({
           title: "Account created!",
           description: "Welcome to Tickr! Your account has been created successfully.",
         });
-        navigate('/home');
+        navigate('/dashboard');
       } else {
         toast({
           title: "Registration failed",
@@ -100,7 +100,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -123,7 +123,7 @@ const Register: React.FC = () => {
         </div>
 
         {/* Register Form */}
-        <motion.form 
+        <motion.form
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -208,10 +208,9 @@ const Register: React.FC = () => {
             )}
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
-            variant="gradient"
+          <Button
+            type="submit"
+            className="w-full"
             disabled={loading}
           >
             {loading ? 'Creating account...' : 'Create Account'}
@@ -219,7 +218,7 @@ const Register: React.FC = () => {
         </motion.form>
 
         {/* Login Link */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}

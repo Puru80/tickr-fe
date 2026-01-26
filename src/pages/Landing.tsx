@@ -26,12 +26,12 @@ const Landing: React.FC = () => {
             className="flex items-center space-x-4"
           >
             <Link to="/login">
-              <Button variant="ghost" className="text-foreground hover:text-accent">
+              <Button variant="ghost" className="text-foreground hover:bg-accent">
                 Login
               </Button>
             </Link>
             <Link to="/register">
-              <Button variant="gradient" className="shadow-glow">
+              <Button className="shadow-glow">
                 Get Started
               </Button>
             </Link>
@@ -70,7 +70,7 @@ const Landing: React.FC = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link to="/register">
-              <Button size="lg" variant="gradient" className="text-lg px-8 py-6 shadow-glow animate-glow">
+              <Button size="lg"  className="text-lg px-8 py-6 shadow-glow animate-glow">
                 Start Trading
               </Button>
             </Link>
@@ -153,7 +153,7 @@ const Landing: React.FC = () => {
             Join thousands of investors already using Tickr to make smarter decisions.
           </p>
           <Link to="/register">
-            <Button size="lg" variant="gradient" className="text-lg px-12 py-6 shadow-glow">
+            <Button size="lg" className="text-lg px-12 py-6 shadow-glow">
               Get Started for Free
             </Button>
           </Link>
