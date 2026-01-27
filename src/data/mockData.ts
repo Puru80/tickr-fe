@@ -1,11 +1,4 @@
-import { MarketIndex, Watchlist, User } from '@/types';
-
-export const mockUser: User = {
-  id: '1',
-  name: 'Arjun Sharma',
-  email: 'arjun@tickr.io',
-  avatar: undefined,
-};
+import { MarketIndex, Watchlist } from '@/types';
 
 export const mockMarketIndices: MarketIndex[] = [
   {

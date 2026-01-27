@@ -12,16 +12,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from './ThemeToggle';
-import { useUser } from '@/hooks/useUser';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, loading } = useUser();
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Implement actual logout logic here (e.g., clear tokens, redirect)
-    console.log('Logged out');
+    logout();
+    navigate('/login');
   };
 
   return (
