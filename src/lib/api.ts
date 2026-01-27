@@ -159,3 +159,15 @@ export const deleteInstrumentFromWatchlist = async (instrumentId: string) => {
 
   return handleResponse(response);
 }
+
+export const getUser = async () => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/user/`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return await handleResponse(response);
+};

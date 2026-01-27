@@ -11,11 +11,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { mockUser } from '@/data/mockData';
 import { ThemeToggle } from './ThemeToggle';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b border-border bg-card/50 backdrop-blur-sm">
@@ -54,14 +63,23 @@ export function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-primary/20 text-primary text-sm">
-                  {mockUser.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden md:inline text-sm font-medium">
-                {mockUser.name}
-              </span>
+              {loading ? (
+                <>
+                  <Skeleton className="w-8 h-8 rounded-full" />
+                  <Skeleton className="hidden h-5 md:block w-14" />
+                </>
+              ) : user ? (
+                <>
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm">
+                      {user.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline text-sm font-medium">
+                    {user.name}
+                  </span>
+                </>
+              ) : null}
               <ChevronDown className="w-4 h-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
@@ -71,7 +89,10 @@ export function Navbar() {
               <span>Profile</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-border" />
-            <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
+            <DropdownMenuItem
+              className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+              onSelect={handleLogout}
+            >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </DropdownMenuItem>
