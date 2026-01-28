@@ -9,7 +9,10 @@ interface IndexCardProps {
 }
 
 export function IndexCard({ index, delay = 0 }: IndexCardProps) {
-  const isPositive = index.isPositive;
+  const change = index.lastPrice - index.close;
+  const changePercent =
+    index.close === 0 ? 0 : (change / index.close) * 100;
+  const isPositive = change >= 0;
 
   return (
     <motion.div
@@ -24,10 +27,10 @@ export function IndexCard({ index, delay = 0 }: IndexCardProps) {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            {index.symbol}
+            {index.instrumentName}
           </p>
           <p className="text-2xl font-semibold font-mono text-foreground mt-1">
-            {index.value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            {index.lastPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </p>
         </div>
         <div
@@ -52,18 +55,18 @@ export function IndexCard({ index, delay = 0 }: IndexCardProps) {
           )}
         >
           {isPositive ? '+' : ''}
-          {index.change.toFixed(2)}
+          {change.toFixed(2)}
         </span>
         <span
           className={cn(
             'px-1.5 py-0.5 text-xs font-medium rounded',
-            isPositive 
-              ? 'bg-gain/20 text-gain' 
+            isPositive
+              ? 'bg-gain/20 text-gain'
               : 'bg-loss/20 text-loss'
           )}
         >
           {isPositive ? '+' : ''}
-          {index.changePercent.toFixed(2)}%
+          {changePercent.toFixed(2)}%
         </span>
       </div>
 

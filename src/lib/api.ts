@@ -171,3 +171,15 @@ export const getUser = async () => {
   });
   return await handleResponse(response);
 };
+
+export const getMarketIndices = async () => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/market/overview`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return await handleResponse(response);
+};
