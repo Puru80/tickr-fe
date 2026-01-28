@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { IndexCard } from './IndexCard';
-import { mockMarketIndices } from '@/data/mockData';
+import { useMarketIndices } from '@/hooks/useMarketIndices';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function MarketOverview() {
+  const { indices, loading } = useMarketIndices();
+
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -17,9 +20,17 @@ export function MarketOverview() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {mockMarketIndices.map((index, i) => (
-          <IndexCard key={index.id} index={index} delay={i * 0.1} />
-        ))}
+        {loading ? (
+          <>
+            <Skeleton className="h-24 rounded-lg" />
+            <Skeleton className="h-24 rounded-lg" />
+            <Skeleton className="h-24 rounded-lg" />
+          </>
+        ) : (
+          indices.map((index, i) => (
+            <IndexCard key={index.instrumentName} index={index} delay={i * 0.1} />
+          ))
+        )}
       </div>
     </motion.section>
   );

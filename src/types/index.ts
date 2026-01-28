@@ -24,13 +24,13 @@ export interface Watchlist {
 }
 
 export interface MarketIndex {
-  id: string;
-  name: string;
-  symbol: string;
-  value: number;
-  change: number;
-  changePercent: number;
-  isPositive: boolean;
+  instrumentName: string;
+  exchange: string;
+  lastPrice: number;
+  open: number;
+  high: number;
+  close: number;
+  low: boolean;
 }
 
 export interface User {
