@@ -1,4 +1,5 @@
-import {AddInstrumentFormData} from "@/types";
+import {AddInstrumentFormData, MarketStatus} from "@/types";
+import { mockMarketStatus } from "@/data/mockData";
 
 const API_URL = 'http://localhost:8080/api/v1';
 
@@ -180,6 +181,18 @@ export const getMarketIndices = async () => {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
+  });
+  return await handleResponse(response);
+};
+
+export const getMarketStatus = async () => {
+  const token = localStorage.getItem('tickr_token');
+  const response = await fetch(`${API_URL}/market/status`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    }
   });
   return await handleResponse(response);
 };

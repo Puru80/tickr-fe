@@ -57,6 +57,6 @@ export interface AddInstrumentFormData {
   referencePrice?: number;
 }
 
-export interface CreateWatchlistFormData {
-  name: string;
+export interface MarketStatus {
+  open: boolean;
 }
