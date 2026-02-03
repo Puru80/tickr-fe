@@ -16,15 +16,48 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+import { useMarketStatus } from '@/hooks/useMarketStatus';
+
 export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, loading, logout } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
+  const { marketStatus, loading: marketLoading, error: marketError } = useMarketStatus();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  const renderMarketStatus = () => {
+    if (marketLoading) {
+      return <Skeleton className="w-24 h-5" />;
+    }
+
+    if (marketError || !marketStatus) {
+      return (
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
+          <Circle className="w-2 h-2 fill-destructive text-destructive" />
+          <span className="text-xs font-medium text-muted-foreground">
+            Status Unavailable
+          </span>
+        </div>
+      )
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50"
+      >
+        <Circle className={`w-2 h-2 ${marketStatus.open ? 'fill-gain text-gain animate-pulse-glow' : 'fill-destructive text-destructive'}`} />
+        <span className="text-xs font-medium text-muted-foreground">
+          {marketStatus.open ? 'Market Open' : 'Market Closed'}
+        </span>
+      </motion.div>
+    )
+  }
 
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b border-border bg-card/50 backdrop-blur-sm">
@@ -45,16 +78,7 @@ export function Navbar() {
       {/* Right Section */}
       <div className="flex items-center gap-4">
         {/* Market Status */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50"
-        >
-          <Circle className="w-2 h-2 fill-gain text-gain animate-pulse-glow" />
-          <span className="text-xs font-medium text-muted-foreground">
-            Market Open
-          </span>
-        </motion.div>
+        {renderMarketStatus()}
 
         {/* Theme Toggle */}
         <ThemeToggle />
@@ -63,7 +87,7 @@ export function Navbar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
-              {loading ? (
+              {authLoading ? (
                 <>
                   <Skeleton className="w-8 h-8 rounded-full" />
                   <Skeleton className="hidden h-5 md:block w-14" />
