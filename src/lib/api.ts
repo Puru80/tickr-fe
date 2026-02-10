@@ -1,7 +1,8 @@
-import {AddInstrumentFormData, MarketStatus} from "@/types";
-import { mockMarketStatus } from "@/data/mockData";
+import {AddInstrumentFormData} from "@/types";
 
-const API_URL = 'http://localhost:8080/api/v1';
+const getBaseUrl = () => {
+  return window._env_?.VITE_API_URL || import.meta.env.VITE_API_URL || "";
+};
 
 const handleResponse = async (response: Response) => {
   const text = await response.text();
@@ -21,7 +22,7 @@ const handleResponse = async (response: Response) => {
 };
 
 export const registerUser = async (name: string, email: string, password: string) => {
-  const response = await fetch(`${API_URL}/auth/register`, {
+  const response = await fetch(`${getBaseUrl()}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ export const registerUser = async (name: string, email: string, password: string
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const response = await fetch(`${API_URL}/auth/login`, {
+  const response = await fetch(`${getBaseUrl()}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ export const loginUser = async (email: string, password: string) => {
 
 export const getWatchlists = async () => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export const getWatchlists = async () => {
 
 export const createWatchlist = async (name: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ export const createWatchlist = async (name: string) => {
 
 export const renameWatchlist = async ({ id, name }: { id: string, name: string }) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/${id}`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export const renameWatchlist = async ({ id, name }: { id: string, name: string }
 
 export const getWatchlistItems = async (id: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/${id}/instruments`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/${id}/instruments`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ export const getWatchlistItems = async (id: string) => {
 
 export const searchInstruments = async (query: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/instruments/search?query=${query}&page=0&size=10`, {
+  const response = await fetch(`${getBaseUrl()}/instruments/search?query=${query}&page=0&size=10`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -111,7 +112,7 @@ export const searchInstruments = async (query: string) => {
 
 export const deleteWatchlist = async (id: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/${id}`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/${id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export const deleteWatchlist = async (id: string) => {
 
 export const removeInstrumentFromWatchlist = async (watchlistId: string, instrumentId: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/${watchlistId}/instruments/${instrumentId}`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/${watchlistId}/instruments/${instrumentId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -136,7 +137,7 @@ export const removeInstrumentFromWatchlist = async (watchlistId: string, instrum
 
 export const addInstrumentToWatchlist = async (watchlistId: string, instrument: AddInstrumentFormData) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/${watchlistId}/instruments`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/${watchlistId}/instruments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ export const addInstrumentToWatchlist = async (watchlistId: string, instrument: 
 
 export const deleteInstrumentFromWatchlist = async (instrumentId: string) => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/watchlists/instruments/${instrumentId}`, {
+  const response = await fetch(`${getBaseUrl()}/watchlists/instruments/${instrumentId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export const deleteInstrumentFromWatchlist = async (instrumentId: string) => {
 
 export const getUser = async () => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/user/`, {
+  const response = await fetch(`${getBaseUrl()}/user/`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ export const getUser = async () => {
 
 export const getMarketIndices = async () => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/market/overview`, {
+  const response = await fetch(`${getBaseUrl()}/market/overview`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -187,7 +188,7 @@ export const getMarketIndices = async () => {
 
 export const getMarketStatus = async () => {
   const token = localStorage.getItem('tickr_token');
-  const response = await fetch(`${API_URL}/market/status`, {
+  const response = await fetch(`${getBaseUrl()}/market/status`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
